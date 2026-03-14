@@ -12,7 +12,64 @@ public class App {
             "west-germany", "usa", "france", "uk", "canada", "japan"
     );
 
-    static void main() throws Exception {
+    static void main(String[] args) throws Exception {
+        runReutersPreview();
+        runKnnDummyTests();
+    }
+
+    private static void runKnnDummyTests() {
+        System.out.println("=== Testy KNN na dummy danych ===");
+
+        List<FeatureSpec> specs = List.of(
+                new FeatureSpec("length", FeatureType.NUMERIC, 1.0),
+                new FeatureSpec("keyword", FeatureType.TEXT, 8.0)
+        );
+
+        KnnClassifier classifier = new KnnClassifier(3, specs);
+
+        classifier.train(articleVector(120, "market"), "biznes");
+        classifier.train(articleVector(110, "market"), "biznes");
+        classifier.train(articleVector(135, "stocks"), "biznes");
+
+        classifier.train(articleVector(35, "goal"), "sport");
+        classifier.train(articleVector(30, "goal"), "sport");
+        classifier.train(articleVector(42, "match"), "sport");
+
+        classifier.train(articleVector(85, "ai"), "technologia");
+        classifier.train(articleVector(90, "software"), "technologia");
+        classifier.train(articleVector(95, "ai"), "technologia");
+
+        printPrediction(classifier, "Próbka 1", articleVector(118, "market"), "biznes");
+        printPrediction(classifier, "Próbka 2", articleVector(38, "goal"), "sport");
+        printPrediction(classifier, "Próbka 3", articleVector(92, "ai"), "technologia");
+        printPrediction(classifier, "Próbka 4", articleVector(125, "stocks"), "biznes");
+
+        System.out.printf("Dane treningowe w klasyfikatorze: %d%n%n", classifier.trainingSize());
+    }
+
+    private static void printPrediction(KnnClassifier classifier, String label, FeatureVector vector, String expectedCategory) {
+        String predictedCategory = classifier.test(vector);
+        String result = expectedCategory.equals(predictedCategory) ? "OK" : "FAIL";
+
+        System.out.printf(
+                "%s -> expected=%s, predicted=%s, wynik=%s, numeric=%s, text=%s%n",
+                label,
+                expectedCategory,
+                predictedCategory,
+                result,
+                vector.numeric(),
+                vector.text()
+        );
+    }
+
+    private static FeatureVector articleVector(double length, String keyword) {
+        FeatureVector vector = new FeatureVector();
+        vector.addNumeric("length", length);
+        vector.addText("keyword", keyword);
+        return vector;
+    }
+
+    private static void runReutersPreview() throws Exception {
         Path dataDir = resolveDataDir("data/reuters21578");
         String pattern = "reut2-*.sgm";
 
