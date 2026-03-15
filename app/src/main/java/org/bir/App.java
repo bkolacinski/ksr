@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.bir.specs.LengthSpec;
-import org.bir.specs.TitleSpec;
+import org.bir.specs.CharCountSpec;
+import org.bir.specs.ProperNounSpec;
 
 public class App {
 
@@ -24,8 +24,8 @@ public class App {
         System.out.println("=== Testy KNN na dummy danych ===");
 
         List<FeatureSpec> specs = List.of(
-                new LengthSpec(1.0),
-                new TitleSpec(8.0)
+                new CharCountSpec(1.0),
+                new ProperNounSpec(8.0)
         );
 
         ReutersArticle article1 = new ReutersArticle(List.of("usa"), "test1");

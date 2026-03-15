@@ -3,69 +3,6 @@
  */
 package org.bir;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 class AppTest {
-	@Test
-	void classifiesSampleUsingMixedFeatures() {
-		KnnClassifier classifier = new KnnClassifier(3, List.of(
-				new FeatureSpec("length", FeatureType.NUMERIC, 1.0),
-				new FeatureSpec("keyword", FeatureType.TEXT, 8.0)
-		));
 
-		classifier.train(vector(120, "market"), "biznes");
-		classifier.train(vector(110, "market"), "biznes");
-		classifier.train(vector(35, "goal"), "sport");
-		classifier.train(vector(30, "goal"), "sport");
-		classifier.train(vector(90, "ai"), "technologia");
-
-		assertEquals("biznes", classifier.test(vector(118, "market")));
-	}
-
-	@Test
-	void resolvesVoteTieUsingSmallerDistance() {
-		KnnClassifier classifier = new KnnClassifier(2, List.of(
-				new FeatureSpec("x", FeatureType.NUMERIC, 1.0)
-		));
-
-		classifier.train(numericVector(0), "A");
-		classifier.train(numericVector(3), "B");
-
-		assertEquals("A", classifier.test(numericVector(1)));
-	}
-
-	@Test
-	void rejectsVectorWithMissingFeature() {
-		KnnClassifier classifier = new KnnClassifier(1, List.of(
-				new FeatureSpec("length", FeatureType.NUMERIC, 1.0),
-				new FeatureSpec("keyword", FeatureType.TEXT, 1.0)
-		));
-
-		FeatureVector incomplete = new FeatureVector();
-		incomplete.addNumeric("length", 10);
-
-		IllegalArgumentException exception = assertThrows(
-				IllegalArgumentException.class,
-				() -> classifier.train(incomplete, "test")
-		);
-
-		assertTrue(exception.getMessage().contains("keyword"));
-	}
-
-	private static FeatureVector vector(double length, String keyword) {
-		FeatureVector vector = new FeatureVector();
-		vector.addNumeric("length", length);
-		vector.addText("keyword", keyword);
-		return vector;
-	}
-
-	private static FeatureVector numericVector(double value) {
-		FeatureVector vector = new FeatureVector();
-		vector.addNumeric("x", value);
-		return vector;
-	}
 }

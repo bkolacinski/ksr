@@ -4,16 +4,17 @@ import org.bir.FeatureSpec;
 import org.bir.FeatureType;
 import org.bir.ReutersArticle;
 
-public class LengthSpec extends FeatureSpec<Double> {
+public class WordCountSpec extends FeatureSpec<Double> {
 
-    public LengthSpec(Double weight) {
+    public WordCountSpec(Double weight) {
         super(weight);
+        this.name = "wordCount";
         this.type = FeatureType.NUMERIC;
-        //TODO Auto-generated constructor stub
     }
 
+    @Override
     public Double calculate(ReutersArticle article) {
-        return ((double)article.getText().length());
+        return (double) SpecWordUtils.extractWords(article.getText()).size();
     }
-    
 }
+

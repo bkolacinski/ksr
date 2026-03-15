@@ -23,7 +23,7 @@ public class TextParser {
 
     public List<ReutersArticle> filter(List<ReutersArticle> articles) {
         for (ReutersArticle article : articles) {
-            String text = article.getText().toLowerCase();
+            String text = article.getText();
             text = text.replaceAll("'s\\b", "");
             String[] tokens = text.split("[^a-z]+");
 
@@ -44,7 +44,7 @@ public class TextParser {
 
     public List<ReutersArticle> stem(List<ReutersArticle> articles) {
         for (ReutersArticle article : articles) {
-            String text = article.getText().toLowerCase();
+            String text = article.getText();
             String[] words = text.split("\\s+");
 
             StringBuilder stemmedText = new StringBuilder();
