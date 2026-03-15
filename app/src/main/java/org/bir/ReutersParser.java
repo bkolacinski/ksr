@@ -52,16 +52,29 @@ public class ReutersParser {
 
 
     private ReutersArticle parseReutersElement(Element reuters) {
-        // <PLACES><D>...</D></PLACES>
         List<String> places = collectD(reuters, "PLACES");
 
-        // <TEXT>...<BODY>...</BODY>
-        Element bodyEl = reuters.selectFirst("BODY");
-        String text = bodyEl != null ? bodyEl.text().trim() : "";
+        Element textParent = reuters.selectFirst("TEXT");
+        if (textParent == null) return null;
 
-        if (text.isBlank()) return null;
+        String content = "";
+        Element bodyEl = textParent.selectFirst("BODY");
 
-        return new ReutersArticle(places, text);
+        if (bodyEl != null) {
+            content = bodyEl.text();
+        } else {
+            Element textClone = textParent.clone();
+
+            textClone.select("TITLE, DATELINE, AUTHOR").remove();
+
+            content = textClone.text();
+        }
+
+        content = content.trim();
+
+        if (content.isBlank()) return null;
+
+        return new ReutersArticle(places, content);
     }
 
     private List<String> collectD(Element parent, String parentTag) {

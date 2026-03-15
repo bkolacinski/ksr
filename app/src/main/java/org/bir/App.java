@@ -1,20 +1,25 @@
 package org.bir;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.bir.specs.CharCountSpec;
 import org.bir.specs.LongWordToOtherWordsRatioSpec;
-import org.bir.specs.ProperNounSpec;
 import org.bir.specs.RarestRepeatedWordSpec;
 import org.bir.specs.AlnumToOtherCharsRatioSpec;
 import org.bir.specs.UpperToAllCharsRatioSpec;
 import org.bir.specs.UpperToLowerRatioSpec;
 
 public class App {
+    private static final double TRAIN_SPLIT_RATIO = 0.8;
+    private static final int K = 5;
+    private static final long SPLIT_SEED = 42L;
 
     private static final Set<String> ALLOWED_PLACES = Set.of(
             "west-germany", "usa", "france", "uk", "canada", "japan"
@@ -23,7 +28,6 @@ public class App {
     static void main(String[] args) throws Exception {
         runFeatureSpecsDummyTests();
         runReutersPreview();
-        runKnnDummyTests();
     }
 
     private static void runFeatureSpecsDummyTests() {
@@ -59,50 +63,6 @@ public class App {
         System.out.println("  text: " + vector.text());
     }
 
-    private static void runKnnDummyTests() {
-        System.out.println("=== Testy KNN na dummy danych ===");
-
-        List<FeatureSpec> specs = List.of(
-                new CharCountSpec(1.0),
-                new ProperNounSpec(8.0)
-        );
-
-        ReutersArticle article1 = new ReutersArticle(List.of("usa"), "test1");
-        ReutersArticle article2 = new ReutersArticle(List.of("usa"), "test2");
-        ReutersArticle article3 = new ReutersArticle(List.of("usa"), "test3");
-        ReutersArticle article4 = new ReutersArticle(List.of("usa"), "test1");
-        ReutersArticle article5 = new ReutersArticle(List.of("usa"), "test2");
-        ReutersArticle article6 = new ReutersArticle(List.of("usa"), "test3");
-        ReutersArticle article7 = new ReutersArticle(List.of("usa"), "test1");
-        ReutersArticle article8 = new ReutersArticle(List.of("usa"), "test2");
-        ReutersArticle article9 = new ReutersArticle(List.of("usa"), "test3");
-        ReutersArticle article10 = new ReutersArticle(List.of("usa"), "test3");
-        ReutersArticle article11 = new ReutersArticle(List.of("usa"), "test3");
-        ReutersArticle article12 = new ReutersArticle(List.of("usa"), "test3");
-        ReutersArticle article13 = new ReutersArticle(List.of("usa"), "test3");
-
-        KnnClassifier classifier = new KnnClassifier(3, specs);
-
-        classifier.train(new FeatureVector(specs, article1), "biznes");
-        classifier.train(new FeatureVector(specs, article2), "biznes");
-        classifier.train(new FeatureVector(specs, article3), "biznes");
-
-        classifier.train(new FeatureVector(specs, article4), "sport");
-        classifier.train(new FeatureVector(specs, article5), "sport");
-        classifier.train(new FeatureVector(specs, article6), "sport");
-
-        classifier.train(new FeatureVector(specs, article7), "technologia");
-        classifier.train(new FeatureVector(specs, article8), "technologia");
-        classifier.train(new FeatureVector(specs, article9), "technologia");
-
-        printPrediction(classifier, "Próbka 1", new FeatureVector(specs, article10), "biznes");
-        printPrediction(classifier, "Próbka 2", new FeatureVector(specs, article11), "sport");
-        printPrediction(classifier, "Próbka 3", new FeatureVector(specs, article12), "technologia");
-        printPrediction(classifier, "Próbka 4", new FeatureVector(specs, article13), "biznes");
-
-        System.out.printf("Dane treningowe w klasyfikatorze: %d%n%n", classifier.trainingSize());
-    }
-
     private static void printPrediction(KnnClassifier classifier, String label, FeatureVector vector, String expectedCategory) {
         String predictedCategory = classifier.test(vector);
         String result = expectedCategory.equals(predictedCategory) ? "OK" : "FAIL";
@@ -119,6 +79,8 @@ public class App {
     }
 
     private static void runReutersPreview() throws Exception {
+        System.out.println("=== KNN na prawdziwych danych Reuters ===");
+
         Path dataDir = resolveDataDir("data/reuters21578");
         String pattern = "reut2-*.sgm";
 
@@ -140,14 +102,119 @@ public class App {
         Map<String, List<ReutersArticle>> byPlace = stemmed.stream()
                 .collect(Collectors.groupingBy(a -> a.getPlaces().get(0)));
 
-        stemmed.stream().limit(5).forEach(a ->
-                System.out.printf("miejsca=%-35s tekst=%s%n",
-                        a.getPlaces(), a.getText().substring(0, Math.min(80, a.getText().length()))));
+        List<FeatureSpec> realDataSpecs = List.of(
+                new LongWordToOtherWordsRatioSpec(1.0),
+                new AlnumToOtherCharsRatioSpec(1.0),
+                new RarestRepeatedWordSpec(1.0),
+                new UpperToAllCharsRatioSpec(1.0)
+        );
 
-        System.out.println("\nLiczba artykułów per kraj:");
+        KnnClassifier classifier = new KnnClassifier(K, realDataSpecs);
+        List<LabeledVector> testSamples = new ArrayList<>();
+        List<String> labelsUsedInSplit = new ArrayList<>();
+        Map<String, Integer> trainByLabel = new HashMap<>();
+        Map<String, Integer> testByLabel = new HashMap<>();
+
+        System.out.println("Liczba artykułów per kraj (po preprocessingu):");
         byPlace.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .forEach(e -> System.out.printf("  %-15s -> %d%n", e.getKey(), e.getValue().size()));
+
+        for (Map.Entry<String, List<ReutersArticle>> entry : byPlace.entrySet()) {
+            String label = entry.getKey();
+            List<ReutersArticle> samples = new ArrayList<>(entry.getValue());
+            if (samples.size() < 2) {
+                continue;
+            }
+
+            // Stratyfikowany split: każda klasa ma dane i w train, i w test.
+            Collections.shuffle(samples, new Random(SPLIT_SEED + label.hashCode()));
+
+            int trainCount = (int) Math.floor(samples.size() * TRAIN_SPLIT_RATIO);
+            trainCount = Math.max(1, Math.min(trainCount, samples.size() - 1));
+
+            labelsUsedInSplit.add(label);
+            trainByLabel.put(label, trainCount);
+            testByLabel.put(label, samples.size() - trainCount);
+
+            for (int i = 0; i < trainCount; i++) {
+                classifier.train(new FeatureVector(realDataSpecs, samples.get(i)), label);
+            }
+
+            for (int i = trainCount; i < samples.size(); i++) {
+                testSamples.add(new LabeledVector(new FeatureVector(realDataSpecs, samples.get(i)), label));
+            }
+        }
+
+        if (classifier.trainingSize() == 0 || testSamples.isEmpty()) {
+            System.out.println("Za mało danych do treningu/testu po podziale 80/20.");
+            System.out.println();
+            return;
+        }
+
+        System.out.println("Podział train/test per klasa:");
+        labelsUsedInSplit.stream().sorted().forEach(label ->
+                System.out.printf("  %-15s train=%d test=%d%n",
+                        label,
+                        trainByLabel.getOrDefault(label, 0),
+                        testByLabel.getOrDefault(label, 0))
+        );
+
+        int correct = 0;
+        Map<String, Integer> actualCounts = new HashMap<>();
+        Map<String, Integer> predictedCounts = new HashMap<>();
+        Map<String, Integer> truePositives = new HashMap<>();
+
+        for (LabeledVector testSample : testSamples) {
+            String actual = testSample.label();
+            String predicted = classifier.test(testSample.vector());
+
+            actualCounts.merge(actual, 1, Integer::sum);
+            predictedCounts.merge(predicted, 1, Integer::sum);
+
+            if (actual.equals(predicted)) {
+                correct++;
+                truePositives.merge(actual, 1, Integer::sum);
+            }
+        }
+
+        double accuracy = (double) correct / testSamples.size();
+        System.out.printf("%nKNN: k=%d, cechy=%d, train=%d, test=%d, accuracy=%.2f%%%n",
+                K,
+                realDataSpecs.size(),
+                classifier.trainingSize(),
+                testSamples.size(),
+                accuracy * 100.0
+        );
+
+        double macroF1 = 0.0;
+        List<String> labels = labelsUsedInSplit.stream().sorted().toList();
+        System.out.println("Per klasa (precision/recall/f1):");
+        for (String label : labels) {
+            int tp = truePositives.getOrDefault(label, 0);
+            int actualTotal = actualCounts.getOrDefault(label, 0);
+            int predictedTotal = predictedCounts.getOrDefault(label, 0);
+
+            double precision = predictedTotal == 0 ? 0.0 : (double) tp / predictedTotal;
+            double recall = actualTotal == 0 ? 0.0 : (double) tp / actualTotal;
+            double f1 = (precision + recall) == 0.0 ? 0.0 : (2.0 * precision * recall) / (precision + recall);
+            macroF1 += f1;
+
+            System.out.printf("  %-15s p=%.2f%% r=%.2f%% f1=%.2f%% (actual=%d, predicted=%d)%n",
+                    label,
+                    precision * 100.0,
+                    recall * 100.0,
+                    f1 * 100.0,
+                    actualTotal,
+                    predictedTotal
+            );
+        }
+
+        macroF1 /= labels.size();
+        System.out.printf("Macro-F1: %.2f%%%n%n", macroF1 * 100.0);
+    }
+
+    private record LabeledVector(FeatureVector vector, String label) {
     }
 
     private static Path resolveDataDir(String relative) {
