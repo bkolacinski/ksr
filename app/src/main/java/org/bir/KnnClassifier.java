@@ -76,17 +76,16 @@ public final class KnnClassifier {
 
     private void validateVector(FeatureVector vector) {
         Objects.requireNonNull(vector, "Wektor cech nie może być nullem");
-
         for (FeatureSpec spec : featureSpecs) {
-            switch (spec.type()) {
+            switch (spec.getType()) {
                 case NUMERIC -> {
-                    if (!vector.numeric().containsKey(spec.name())) {
-                        throw new IllegalArgumentException("Brakuje cechy numerycznej: " + spec.name());
+                    if (!vector.numeric().containsKey(spec.getName())) {
+                        throw new IllegalArgumentException("Brakuje cechy numerycznej: " + spec.getName());
                     }
                 }
                 case TEXT -> {
-                    if (!vector.text().containsKey(spec.name())) {
-                        throw new IllegalArgumentException("Brakuje cechy tekstowej: " + spec.name());
+                    if (!vector.text().containsKey(spec.getName())) {
+                        throw new IllegalArgumentException("Brakuje cechy tekstowej: " + spec.getName());
                     }
                 }
             }

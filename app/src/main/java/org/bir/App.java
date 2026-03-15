@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.bir.specs.LengthSpec;
+import org.bir.specs.TitleSpec;
+
 public class App {
 
     private static final Set<String> ALLOWED_PLACES = Set.of(
@@ -21,28 +24,42 @@ public class App {
         System.out.println("=== Testy KNN na dummy danych ===");
 
         List<FeatureSpec> specs = List.of(
-                new FeatureSpec("length", FeatureType.NUMERIC, 1.0),
-                new FeatureSpec("keyword", FeatureType.TEXT, 8.0)
+                new LengthSpec(1.0),
+                new TitleSpec(8.0)
         );
+
+        ReutersArticle article1 = new ReutersArticle(List.of("usa"), "test1");
+        ReutersArticle article2 = new ReutersArticle(List.of("usa"), "test2");
+        ReutersArticle article3 = new ReutersArticle(List.of("usa"), "test3");
+        ReutersArticle article4 = new ReutersArticle(List.of("usa"), "test1");
+        ReutersArticle article5 = new ReutersArticle(List.of("usa"), "test2");
+        ReutersArticle article6 = new ReutersArticle(List.of("usa"), "test3");
+        ReutersArticle article7 = new ReutersArticle(List.of("usa"), "test1");
+        ReutersArticle article8 = new ReutersArticle(List.of("usa"), "test2");
+        ReutersArticle article9 = new ReutersArticle(List.of("usa"), "test3");
+        ReutersArticle article10 = new ReutersArticle(List.of("usa"), "test3");
+        ReutersArticle article11 = new ReutersArticle(List.of("usa"), "test3");
+        ReutersArticle article12 = new ReutersArticle(List.of("usa"), "test3");
+        ReutersArticle article13 = new ReutersArticle(List.of("usa"), "test3");
 
         KnnClassifier classifier = new KnnClassifier(3, specs);
 
-        classifier.train(articleVector(120, "market"), "biznes");
-        classifier.train(articleVector(110, "market"), "biznes");
-        classifier.train(articleVector(135, "stocks"), "biznes");
+        classifier.train(new FeatureVector(specs, article1), "biznes");
+        classifier.train(new FeatureVector(specs, article2), "biznes");
+        classifier.train(new FeatureVector(specs, article3), "biznes");
 
-        classifier.train(articleVector(35, "goal"), "sport");
-        classifier.train(articleVector(30, "goal"), "sport");
-        classifier.train(articleVector(42, "match"), "sport");
+        classifier.train(new FeatureVector(specs, article4), "sport");
+        classifier.train(new FeatureVector(specs, article5), "sport");
+        classifier.train(new FeatureVector(specs, article6), "sport");
 
-        classifier.train(articleVector(85, "ai"), "technologia");
-        classifier.train(articleVector(90, "software"), "technologia");
-        classifier.train(articleVector(95, "ai"), "technologia");
+        classifier.train(new FeatureVector(specs, article7), "technologia");
+        classifier.train(new FeatureVector(specs, article8), "technologia");
+        classifier.train(new FeatureVector(specs, article9), "technologia");
 
-        printPrediction(classifier, "Próbka 1", articleVector(118, "market"), "biznes");
-        printPrediction(classifier, "Próbka 2", articleVector(38, "goal"), "sport");
-        printPrediction(classifier, "Próbka 3", articleVector(92, "ai"), "technologia");
-        printPrediction(classifier, "Próbka 4", articleVector(125, "stocks"), "biznes");
+        printPrediction(classifier, "Próbka 1", new FeatureVector(specs, article10), "biznes");
+        printPrediction(classifier, "Próbka 2", new FeatureVector(specs, article11), "sport");
+        printPrediction(classifier, "Próbka 3", new FeatureVector(specs, article12), "technologia");
+        printPrediction(classifier, "Próbka 4", new FeatureVector(specs, article13), "biznes");
 
         System.out.printf("Dane treningowe w klasyfikatorze: %d%n%n", classifier.trainingSize());
     }
@@ -62,13 +79,6 @@ public class App {
         );
     }
 
-    private static FeatureVector articleVector(double length, String keyword) {
-        FeatureVector vector = new FeatureVector();
-        vector.addNumeric("length", length);
-        vector.addText("keyword", keyword);
-        return vector;
-    }
-
     private static void runReutersPreview() throws Exception {
         Path dataDir = resolveDataDir("data/reuters21578");
         String pattern = "reut2-*.sgm";
@@ -81,12 +91,17 @@ public class App {
                 .filter(a -> ALLOWED_PLACES.contains(a.getPlaces().get(0)))
                 .toList();
 
+        TextParser textParser = new TextParser("org/bir/stoplist.txt");
+
         System.out.printf("Wczytano %d artykułów, po filtracji: %d%n%n", articles.size(), filtered.size());
 
-        Map<String, List<ReutersArticle>> byPlace = filtered.stream()
+        List<ReutersArticle> stopped = textParser.filter(filtered);
+        List<ReutersArticle> stemmed = textParser.stem(stopped);
+
+        Map<String, List<ReutersArticle>> byPlace = stemmed.stream()
                 .collect(Collectors.groupingBy(a -> a.getPlaces().get(0)));
 
-        filtered.stream().limit(5).forEach(a ->
+        stemmed.stream().limit(5).forEach(a ->
                 System.out.printf("miejsca=%-35s tekst=%s%n",
                         a.getPlaces(), a.getText().substring(0, Math.min(80, a.getText().length()))));
 

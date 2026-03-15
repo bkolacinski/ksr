@@ -26,6 +26,9 @@ dependencies {
 
     // JSoup - parser HTML/SGML do plików Reuters .sgm
     implementation("org.jsoup:jsoup:1.18.3")
+
+    // Source: https://mvnrepository.com/artifact/com.github.rholder/snowball-stemmer
+    implementation("com.github.rholder:snowball-stemmer:1.3.0.581.1")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

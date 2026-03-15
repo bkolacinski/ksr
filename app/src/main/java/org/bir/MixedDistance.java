@@ -11,14 +11,14 @@ public class MixedDistance {
         double sum = 0.0;
 
         for (FeatureSpec spec : specs) {
-            double w = spec.weight();
-            if (spec.type() == FeatureType.NUMERIC) {
+            double w = spec.getWeight();
+            if (spec.getType() == FeatureType.NUMERIC) {
                 double d = Math.abs(
-                        fv1.getNumeric(spec.name()) - fv2.getNumeric(spec.name())
+                        fv1.getNumeric(spec.getName()) - fv2.getNumeric(spec.getName())
                 );
                 sum += w * d;
             } else  {
-                double d = fv1.getText(spec.name()).equals(fv2.getText(spec.name())) ? 0.0 : 1.0;
+                double d = fv1.getText(spec.getName()).equals(fv2.getText(spec.getName())) ? 0.0 : 1.0;
                 sum += w * d;
             }
         }

@@ -2,6 +2,7 @@ package org.bir;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class FeatureVector {
@@ -31,4 +32,14 @@ public final class FeatureVector {
     public Map<String, String> text() {
         return Collections.unmodifiableMap(text);
     }
+
+    public FeatureVector(List<FeatureSpec> specs, ReutersArticle article) {
+        for(FeatureSpec spec : specs) {
+            if(spec.getType() == FeatureType.NUMERIC) {
+                this.addNumeric(spec.getName(), (Double)spec.calculate(article));
+            } else {
+                this.addText(spec.getName(), (String)spec.calculate(article));
+            }
+        }
+    } 
 }

@@ -3,7 +3,7 @@ import java.util.List;
 
 public class ReutersArticle {
     private final List<String> places;
-    private final String text;
+    private String text;
 
     public ReutersArticle(List<String> places, String text) {
         this.places = places;
@@ -12,6 +12,10 @@ public class ReutersArticle {
 
     public List<String> getPlaces() { return places; }
     public String getText()         { return text;   }
+
+    public void setText(String text) {
+        this.text = text;
+    }
 
     @Override
     public String toString() {
