@@ -11,10 +11,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.bir.specs.LongWordToOtherWordsRatioSpec;
+import org.bir.specs.ProperNounRatioSpec;
+import org.bir.specs.ProperNounSpec;
 import org.bir.specs.RarestRepeatedWordSpec;
 import org.bir.specs.AlnumToOtherCharsRatioSpec;
+import org.bir.specs.AverageWordLengthSpec;
+import org.bir.specs.CharCountSpec;
+import org.bir.specs.LexicalDiversitySpec;
 import org.bir.specs.UpperToAllCharsRatioSpec;
 import org.bir.specs.UpperToLowerRatioSpec;
+import org.bir.specs.WordCountSpec;
 
 public class App {
     private static final double TRAIN_SPLIT_RATIO = 0.8;
@@ -103,10 +109,17 @@ public class App {
                 .collect(Collectors.groupingBy(a -> a.getPlaces().get(0)));
 
         List<FeatureSpec> realDataSpecs = List.of(
-                new LongWordToOtherWordsRatioSpec(1.0),
                 new AlnumToOtherCharsRatioSpec(1.0),
+                new AverageWordLengthSpec(1.0),
+                new CharCountSpec(1.0),
+                new LexicalDiversitySpec(1.0),
+                new LongWordToOtherWordsRatioSpec(1.0),
+                new ProperNounRatioSpec(1.0),
+                new ProperNounSpec(1.0),
                 new RarestRepeatedWordSpec(1.0),
-                new UpperToAllCharsRatioSpec(1.0)
+                new UpperToAllCharsRatioSpec(1.0),
+                new UpperToLowerRatioSpec(1.0),
+                new WordCountSpec(1.0)
         );
 
         KnnClassifier classifier = new KnnClassifier(K, realDataSpecs);
@@ -127,7 +140,6 @@ public class App {
                 continue;
             }
 
-            // Stratyfikowany split: każda klasa ma dane i w train, i w test.
             Collections.shuffle(samples, new Random(SPLIT_SEED + label.hashCode()));
 
             int trainCount = (int) Math.floor(samples.size() * TRAIN_SPLIT_RATIO);
@@ -144,12 +156,6 @@ public class App {
             for (int i = trainCount; i < samples.size(); i++) {
                 testSamples.add(new LabeledVector(new FeatureVector(realDataSpecs, samples.get(i)), label));
             }
-        }
-
-        if (classifier.trainingSize() == 0 || testSamples.isEmpty()) {
-            System.out.println("Za mało danych do treningu/testu po podziale 80/20.");
-            System.out.println();
-            return;
         }
 
         System.out.println("Podział train/test per klasa:");
