@@ -57,7 +57,7 @@ public class ReutersParser {
         Element textParent = reuters.selectFirst("TEXT");
         if (textParent == null) return null;
 
-        String content = "";
+        String content;
         Element bodyEl = textParent.selectFirst("BODY");
 
         if (bodyEl != null) {

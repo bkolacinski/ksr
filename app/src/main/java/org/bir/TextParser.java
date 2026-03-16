@@ -3,18 +3,17 @@ package org.bir;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.tartarus.snowball.ext.englishStemmer;
 
 public class TextParser {
-    private List<String> stopwords;
-    private englishStemmer stemmer;
+    private final List<String> stopwords;
+    private final englishStemmer stemmer;
 
     public TextParser(String stopwordFilePath) {
-        InputStream is = getClass().getClassLoader().getResourceAsStream("org/bir/stoplist.txt");
+        InputStream is = getClass().getClassLoader().getResourceAsStream(stopwordFilePath);
         
         stopwords = new BufferedReader(new InputStreamReader(is)).lines().toList();
 

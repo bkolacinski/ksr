@@ -32,56 +32,7 @@ public class App {
     );
 
     static void main(String[] args) throws Exception {
-        runFeatureSpecsDummyTests();
         runReutersPreview();
-    }
-
-    private static void runFeatureSpecsDummyTests() {
-        System.out.println("=== Testy nowych speców na dummy danych ===");
-
-        ReutersArticle sampleA = new ReutersArticle(
-                List.of("usa"),
-                "ALFA alfa 123 !!! kot kot Dom dom DOM"
-        );
-        ReutersArticle sampleB = new ReutersArticle(
-                List.of("uk"),
-                "rynek giełdowy dynamicznie rośnie rośnie szybko"
-        );
-
-        List<FeatureSpec> specs = List.of(
-                new LongWordToOtherWordsRatioSpec(1.0),
-                new AlnumToOtherCharsRatioSpec(1.0),
-                new RarestRepeatedWordSpec(1.0),
-                new UpperToLowerRatioSpec(1.0),
-                new UpperToAllCharsRatioSpec(1.0)
-        );
-
-        printSpecsForArticle("Sample A", sampleA, specs);
-        printSpecsForArticle("Sample B", sampleB, specs);
-        System.out.println();
-    }
-
-    private static void printSpecsForArticle(String label, ReutersArticle article, List<FeatureSpec> specs) {
-        FeatureVector vector = new FeatureVector(specs, article);
-
-        System.out.println(label + " -> text='" + article.getText() + "'");
-        System.out.println("  numeric: " + vector.numeric());
-        System.out.println("  text: " + vector.text());
-    }
-
-    private static void printPrediction(KnnClassifier classifier, String label, FeatureVector vector, String expectedCategory) {
-        String predictedCategory = classifier.test(vector);
-        String result = expectedCategory.equals(predictedCategory) ? "OK" : "FAIL";
-
-        System.out.printf(
-                "%s -> expected=%s, predicted=%s, wynik=%s, numeric=%s, text=%s%n",
-                label,
-                expectedCategory,
-                predictedCategory,
-                result,
-                vector.numeric(),
-                vector.text()
-        );
     }
 
     private static void runReutersPreview() throws Exception {
@@ -95,7 +46,7 @@ public class App {
 
         List<ReutersArticle> filtered = articles.stream()
                 .filter(a -> a.getPlaces().size() == 1)
-                .filter(a -> ALLOWED_PLACES.contains(a.getPlaces().get(0)))
+                .filter(a -> ALLOWED_PLACES.contains(a.getPlaces().getFirst()))
                 .toList();
 
         TextParser textParser = new TextParser("org/bir/stoplist.txt");
@@ -106,7 +57,7 @@ public class App {
         List<ReutersArticle> stemmed = textParser.stem(stopped);
 
         Map<String, List<ReutersArticle>> byPlace = stemmed.stream()
-                .collect(Collectors.groupingBy(a -> a.getPlaces().get(0)));
+                .collect(Collectors.groupingBy(a -> a.getPlaces().getFirst()));
 
         List<FeatureSpec> realDataSpecs = List.of(
                 new AlnumToOtherCharsRatioSpec(1.0),

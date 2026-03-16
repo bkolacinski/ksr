@@ -128,10 +128,7 @@ public final class KnnClassifier {
         if (normalized < 0.0) {
             return 0.0;
         }
-        if (normalized > 1.0) {
-            return 1.0;
-        }
-        return normalized;
+        return Math.min(normalized, 1.0);
     }
 
     private void validateVector(FeatureVector vector) {
