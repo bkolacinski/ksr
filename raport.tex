@@ -1,0 +1,244 @@
+\documentclass{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{amssymb}
+%{Informatyka stosowana 2020, I st., semestr VI}
+
+
+\author{
+	{1}\\
+	{2}\\
+	{3}
+}
+
+\title{Komputerowe systemy rozpoznawania 2024/2025\\Projekt 1. Klasyfikacja dokumentów tekstowych}
+\begin{document}
+\maketitle
+
+Opis projektu ma formę artykułu naukowego lub raportu z zadania
+badawczego (doświadczalnego/obliczeniowego0 (wg indywidualnych potrzeb związanych np. z
+pracą inżynierską/naukową/zawodową). Kolejne sekcje muszą być numerowane i
+zatytułowane. Wzory są numerowane, tablice są numerowane i podpisane nad
+tablicą, rysunki są numerowane i podpisane pod rysunkiem. Podpis rysunku i
+tabeli musi być wyczerpujący (nie ogólnikowy), aby czytelnik nie musiał sięgać do tekstu, aby go
+zrozumieć.\\
+\indent {\bf Limit stron sprawozdania: 20. Nie zmieniać parametrów tekstu
+(czcionki, marginesów, interlinii, itp.). Istotne dla sprawozdania rysunki,
+tabele, informacje, kody itp. można umieścić w załącznikach, które nie wliczają
+się do limitu stron.}\\
+\indent {\bf Wybrane sekcje (rozdziały sprawozdania) są uzupełniane wg wymagań w
+opisie Projektu 1. i Harmonogramie Zajęć na WIKAMP KSR jako efekty zadań w~poszczególnych tygodniach}.
+
+\section{Cel projektu}
+Zwięzły (2-3 zdania) opis
+problemu badawczego/obliczeniowego,  uwzględniający część badawczą i
+implementacyjną. {\bf Nie przepisuj literatury ani teorii -- napisz krótko jak
+rozumiesz to co masz wykonać: jakie działania, na jakim zbiorze danych (link lub
+przypis), jaki jest spodziewany efekt}.\\
+\indent Zamieszczony opis (własny, nie skopiowany) zawiera
+przypisy do literatury (bibliografii) zamieszczonej na końcu raportu/sprawozdania
+zgodnie z~Polską Normą cytowania bibliografii (zob. materiały BG PŁ pt. ,,Bibliografia
+załącznikowa'').\\
+\noindent {\bf Sekcja uzupełniona jako efekt zadania Tydzień 02 wg Harmonogramu Zajęć
+na WIKAMP KSR.}
+
+Celem niniejszego projektu jest implementacja, analiza oraz optymalizacja algorytmu $k$-najbliższych sąsiadów ($k$-NN, z ustaloną wartością początkową $k=5$) przeznaczonego do kategoryzacji dokumentów tekstowych na podstawie wyekstrahowanych cech o charakterze liczbowym i tekstowym.
+Klasyfikacja prowadzona jest na korpusie tekstowym \textit{Reuters-21578} \cite{reuters21578}, a zadanie polega na przyporządkowaniu artykułów do jednej z 6 klas reprezentujących kraje (USA, UK, Francja, Kanada, Japonia, Niemcy Zachodnie).
+Proces oceny modelu uwzględnia zjawisko braku zbalansowania danych poprzez stratyfikowany podział zbioru na część treningową oraz testową (w proporcji 80/20) i obejmuje zbadanie skuteczności za pomocą metryk Accuracy oraz Macro-F1.
+
+
+\section{Klasyfikacja nadzorowana metodą $k$-NN.  Ekstrakcja cech, wektory cech}
+Krótki opis metody $k$-NN: zasada działania, wymagane parametry wejściowe, format
+i~znaczenie wyników/rezultatów. Opis własny z przypisami do literatury -- minimum
+teorii potrzebnej do zadania, tak by inżynier innej specjalności zrozumiał dalszy
+opis \cite{tadeusiewicz90}. {\bf Nie przepisuj literatury ani teorii -- napisz krótko jak
+rozumiesz to co masz wykonać w tym konkretnym przypadku}.\\
+
+Wyekstrahowane cechy liczbowe i tekstowe dokumentów, min. 10 cech, w tym min. 2
+o wartościach tekstowych, wszystkie
+opisane słownie oraz wzorami, z objaśnieniem oznaczeń i przykładami użycia, do
+tego precyzyjny opis możliwych wartości, które przyjmuje dana cecha (ułatwiający
+czytelnikowi zrozumienie znaczenia w zadaniu klasyfikacji). Pamiętaj, że wybrane
+cechy muszą reprezentować obiekt niezależnie od innych tekstów w tym samym lub w
+innym zbiorze. Podaj postać wektora wartości cech po procesie ekstrakcji. Użyte oznaczenia są jednolite w całym
+raporcie/sprawozdaniu. \\
+\indent Nadmiarowe rysunki i wzory mogą być podane w załącznikach. \\
+\noindent {\bf Sekcja uzupełniona jako efekt zadania Tydzień 02 wg Harmonogramu Zajęć
+na WIKAMP KSR.}
+
+\subsection{Opis metody $k$-NN w zadaniu kategoryzacji dokumentów}
+Algorytm $k$-najbliższych sąsiadów ($k$-NN) to nadzorowana metoda klasyfikacji, polegająca na przypisaniu nowego obiektu do klasy, która najczęściej występuje wśród jego $k$ najbliższych obiektów ze zbioru uczącego (treningowego) \cite{tadeusiewicz90}. W kontekście tego zadania, każdy dokument jest przekształcany w wielowymiarowy wektor wyekstrahowanych cech.
+Odległość pomiędzy wektorami (dokumentami) obliczana jest na podstawie zdefiniowanej metryki (np. Euklidesowej czy Czebyszewa dla cech liczbowych i miar podobieństwa napisów dla cech tekstowych). Algorytm przyjmuje jako parametry wejściowe zbiór tekstów, zestaw wag dla każdej z cech oraz liczbę $k$ ($k=5$), a na wyjściu zwraca najbardziej prawdopodobną klasę docelową (kraj, do którego przypisany jest tekst).
+
+\subsection{Ekstrakcja i opis cech wektora}
+Dokumenty reprezentowane są za pomocą zbioru zdefiniowanych cech tekstowych i liczbowych, wyekstrahowanych na podstawie zliczeń znaków i słów. Niech $D$ oznacza zbiór znaków występujących w artykule, $L$ oznacza długość dokumentu w znakach (ze spacjami), $W$ to zbiór słów (wyekstrahowanych za pomocą wyrażeń regularnych), $N = |W|$ to liczba słów. Wszystkie zaimplementowane poniżej cechy pozwalają na utworzenie wektora $V$. Poniżej szczegółowo objaśniono stosowane charakterystyki:
+
+\textbf{Cechy liczbowe:}
+
+1. \textbf{CharCountSpec ($c_1$):} Ilość wszystkich znaków w dokumencie bez spacji.
+   \begin{equation}
+   c_1 = |\{x \in D \mid x \neq \text{' '}\}|
+   \end{equation}
+   Wartość: $\mathbb{N} \cup \{0\}$.
+
+2. \textbf{WordCountSpec ($c_2$):} Ilość wszystkich słów w danym tekście. Słowo jest zdefiniowane jako zbiór liter bez cyfr.
+   \begin{equation}
+   c_2 = N
+   \end{equation}
+   Wartość: $\mathbb{N} \cup \{0\}$.
+
+3. \textbf{AverageWordLengthSpec ($c_3$):} Średnia długość słowa.
+   \begin{equation}
+   c_3 = \frac{\sum_{w \in W} |w|}{N}
+   \end{equation}
+   Wartość: $\mathbb{R}_{\ge 0}$. (Gdy brak słów, cecha równa 0).
+
+4. \textbf{LexicalDiversitySpec ($c_4$):} Stosunek ilości unikalnych słów do wszystkich słów w dokumencie. Im większy wynik, tym większy zasób słownictwa w danym tekście. Unikalne słowa badane są bez względu na wielkość znaków. Niech $U$ będzie zbiorem słów z $W$ zredukowanych do małych liter.
+   \begin{equation}
+   c_4 = \frac{|U|}{N}
+   \end{equation}
+   Wartość: $[0, 1]$.
+
+5. \textbf{LongWordToOtherWordsRatioSpec ($c_5$):} Stosunek liczby słów bardzo długich (co najmniej 5 liter) do liczby pozostałych słów. Niech $L_w = |\{w \in W \mid |w| \ge 5\}|$.
+   \begin{equation}
+   c_5 = \begin{cases}
+    \frac{L_w}{N - L_w} & \text{dla } N - L_w > 0 \\
+    L_w & \text{w p. p.}
+   \end{cases}
+   \end{equation}
+   Wartość: $\mathbb{R}_{\ge 0}$.
+
+6. \textbf{ProperNounRatioSpec ($c_6$):} Współczynnik nazewnictwa własnego – stosunek wyrazów rozpoczynających się wielką literą (z pominięciem tych po znaku końca zdania) do całkowitej ilości słów.
+Niech $P$ będzie liczbą takich nazw.
+   \begin{equation}
+   c_6 = \frac{P}{N}
+   \end{equation}
+   Wartość: $[0, 1]$.
+
+7. \textbf{UpperToAllCharsRatioSpec ($c_7$):} Stosunek wielkich liter do całkowitej długości tekstu.
+   Niech $U_c = |\{x \in D \mid x \text{ jest wielką literą}\}|$.
+   \begin{equation}
+   c_7 = \frac{U_c}{L}
+   \end{equation}
+   Wartość: $[0, 1]$.
+
+8. \textbf{UpperToLowerRatioSpec ($c_8$):} Stosunek ilości wielkich liter do małych liter.
+   Niech $M_c = |\{x \in D \mid x \text{ jest małą literą}\}|$.
+   \begin{equation}
+   c_8 = \begin{cases}
+    \frac{U_c}{M_c} & \text{dla } M_c > 0 \\
+    U_c & \text{w p. p.}
+   \end{cases}
+   \end{equation}
+   Wartość: $\mathbb{R}_{\ge 0}$.
+
+9. \textbf{AlnumToOtherCharsRatioSpec ($c_9$):} Stosunek liczby znaków alfanumerycznych (litery i cyfry) do liczby pozostałych znaków (interpunkcja, znaki białe, znaki specjalne).
+   Niech $A_c = |\{x \in D \mid x \text{ jest literą lub cyfrą}\}|$, a $O_c = L - A_c$.
+   \begin{equation}
+   c_9 = \begin{cases}
+    \frac{A_c}{O_c} & \text{dla } O_c > 0 \\
+    A_c & \text{w p. p.}
+   \end{cases}
+   \end{equation}
+   Wartość: $\mathbb{R}_{\ge 0}$.
+
+\textbf{Cechy tekstowe:}
+
+10. \textbf{ProperNounSpec ($t_1$):} Zwraca pierwszą napotkaną w tekście nazwę własną (wyraz zaczynający się wielką literą). Jeśli takiej nie ma, przyjmuje wartość tekstową "None".
+    \begin{equation}
+    t_1 = w_i \in W, \text{gdzie } w_i \text{ zaczyna się od wielkiej litery oraz } \forall_{j < i} w_j \text{ jest małą literą}
+    \end{equation}
+    Wartość: Ciąg znaków (String).
+
+11. \textbf{RarestRepeatedWordSpec ($t_2$):} Wyraz o najmniejszej ilości powtórzeń, jednak pojawiający się przynajmniej dwukrotnie w artykule (redukcja do małych liter). W przypadku remisów wybierane jest słowo wcześniejsze leksykograficznie. Brak takich wyrazów skutkuje przyjęciem wartości "None".
+    Niech $C(w)$ to liczba wystąpień słowa $w$ w tekście.
+    \begin{equation}
+    t_2 = \underset{w \in U, C(w) \ge 2}{\mathrm{argmin}}\ C(w)
+    \end{equation}
+    Wartość: Ciąg znaków (String).
+
+\textbf{Postać wektora cech:}
+
+Na podstawie zaprezentowanych specyfikacji każdy tekst zostaje przekształcony na wektor $V$ postaci:
+\begin{equation}
+V = [c_1, c_2, c_3, c_4, c_5, c_6, c_7, c_8, c_9, t_1, t_2]
+\end{equation}
+Przykład wektora dla zdania ,,ALFA alfa 123 !!! kot kot Dom dom DOM'':
+\begin{equation}
+V_{przyklad} = [30.0, 8.0, 3.25, 0.5, 0.0, 0.0, 0.25, 0.6, 1.4, \text{''ALFA''}, \text{''alfa''}]
+\end{equation}
+
+\section{Miary jakości klasyfikacji}
+Miary jakości klasyfikacji (Accuracy, Precision,
+Recall, F1). We wprowadzeniu zaprezentować minimum teorii potrzebnej do realizacji
+zadania, tak by inżynier innej specjalności zrozumiał dalszy opis. Należy podać {\bf konkretne wzory miar użyte w tym eksperymencie oraz krótko
+opisać ich znaczenie i zakresy przyjmowanych wartości. Należy podać przykładowe
+wartości każdej miary. Nie przepisuj
+teorii, ale podaj link/przypis i opisz jak rozumiesz jej zastosowanie w tym konkretnym
+zadaniu}. \\
+\indent Stosowane wzory, oznaczenia z objaśnieniami znaczenia symboli użytych w
+doświadczeniu. Oznaczenia jednolite w obrębie całego sprawozdania.  Opis zawiera przypisy do bibliografii zgodnie z
+Polską Normą, (zob. materiały BG PŁ).\\
+\noindent {\bf Sekcja uzupełniona jako efekt zadania Tydzień 03 wg Harmonogramu Zajęć
+na WIKAMP KSR.}
+
+
+\section{Metryki i miary podobieństwa tekstów w klasyfikacji}
+Wzory, znaczenia i opisy symboli zastosowanych metryk z
+przykładami. Wzory, opisy i znaczenia miar
+podobieństwa tekstów zastosowanych w obliczaniu metryk dla wektorów cech z
+przykładami dla każdej miary \cite{niewiadomski08}.  Oznaczenia jednolite w obrębie całego sprawozdania.  {\bf Podaj metryki i miary
+podobieństwa nie z literatury (te wystarczy zacytować linkiem), ale konkretne ich
+postaci stosowane w zadaniu. Jakie zakresy wartości przyjmują te miary i
+metryki, co oznaczają ich wartości? Podaj przykładowe wartości dla przykładowych wektorów cech}. \\
+\noindent {\bf Sekcja uzupełniona jako efekt zadania Tydzień 04 wg Harmonogramu Zajęć
+na WIKAMP KSR.}
+
+\section{Wyniki klasyfikacji dla różnych parametrów wejściowych}
+Wstępne wyniki miary Accuracy dla próbnych klasyfikacji na ograniczonym zbiorze tekstów (podać parametry i kryteria
+wyboru wg punktów 3.-8. z opisu Projektu 1.).
+\noindent {\bf Sekcja uzupełniona jako efekt zadania Tydzień 05 wg Harmonogramu Zajęć
+na WIKAMP KSR.}
+
+
+\section{Dyskusja, wnioski, sprawozdanie końcowe}
+We wnioskach z badania skomentować wyłącznie wpływ parametrów i cech na jakość procesu klasyfikacji. Innymi słowy – wnioski to to, co wynika z przeprowadzonych obliczeń, a nie to co wiadomo z literatury.
+Znaczenie kolejnych eksperymentów wg punktów 2.-8. opisu projektu 1.  Każdorazowo
+podane parametry, dla których przeprowadzana eksperyment.
+Wykresy (np. słupkowe) i tabele wyników
+obowiązkowe, dokładnie opisane w ,,captions'' (tytułach), konieczny opis osi i
+jednostek wykresów oraz kolumn i wierszy tabel.\\
+
+{**Ewentualne wyniki realizacji punktu 9. opisu Projektu 1., czyli ,,na ocenę 5.0'' i ich porównanie do wyników z
+części obowiązkowej**.Dokładne interpretacje uzyskanych wyników w zależności od parametrów klasyfikacji
+opisanych w punktach 3.-8 opisu Projektu 1.
+Omówić i wyjaśnić napotkane problemy (jeśli były). Każdy wniosek/problem powinien mieć poparcie
+w przeprowadzonych eksperymentach (odwołania do konkretnych wyników: wykresów,
+tabel). \\
+\underline{Dla końcowej oceny jest to najważniejsza sekcja} sprawozdania, gdyż prezentuje poziom
+zrozumienia rozwiązywanego problemu.\\
+
+** Możliwości kontynuacji prac w obszarze systemów rozpoznawania, zwłaszcza w kontekście pracy inżynierskiej,
+magisterskiej, naukowej, itp. **\\
+
+\noindent {\bf Sekcja uzupełniona jako efekt zadań Tydzień 05 i Tydzień 06 wg Harmonogramu Zajęć
+na WIKAMP KSR.}
+
+
+\section{Braki w realizacji projektu 1.}
+Wymienić wg opisu Projektu 1. wszystkie niezrealizowane obowiązkowe elementy projektu, ewentualnie
+podać merytoryczne (ale nie czasowe) przyczyny tych braków.
+
+
+\begin{thebibliography}{0}
+\bibitem{tadeusiewicz90} R. Tadeusiewicz: Rozpoznawanie obrazów, PWN, Warszawa, 1991.
+\bibitem{niewiadomski08} A. Niewiadomski, Methods for the Linguistic Summarization of Data: Applications of Fuzzy Sets and Their Extensions, Akademicka Oficyna Wydawnicza EXIT, Warszawa, 2008.
+\bibitem{reuters21578} David D. Lewis, \textit{Reuters-21578 Text Categorization Collection Distribution 1.0}, UCI Machine Learning Repository, 1997. Dostępne online: \url{http://kdd.ics.uci.edu/databases/reuters21578/reuters21578.html}
+\end{thebibliography}
+
+Literatura zawiera wyłącznie źródła recenzowane i/lub o potwierdzonej wiarygodności,
+możliwe do weryfikacji i cytowane w sprawozdaniu.
+\end{document}
