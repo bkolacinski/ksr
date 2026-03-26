@@ -1,10 +1,10 @@
-package org.bir.specs;
-
-import org.bir.FeatureSpec;
-import org.bir.FeatureType;
-import org.bir.ReutersArticle;
+package org.bir.extractor.specs;
 
 import java.util.List;
+
+import org.bir.extractor.FeatureSpec;
+import org.bir.extractor.FeatureType;
+import org.bir.extractor.ReutersArticle;
 
 public class ProperNounRatioSpec extends FeatureSpec<Double> {
 

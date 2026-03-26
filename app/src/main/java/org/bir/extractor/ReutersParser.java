@@ -1,4 +1,4 @@
-package org.bir;
+package org.bir.extractor;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

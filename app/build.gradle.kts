@@ -40,7 +40,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "org.bir.App"
+    mainClass = "org.bir.knn.App"
 }
 
 tasks.named<Test>("test") {

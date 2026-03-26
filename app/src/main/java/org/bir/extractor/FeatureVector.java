@@ -1,4 +1,4 @@
-package org.bir;
+package org.bir.extractor;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;

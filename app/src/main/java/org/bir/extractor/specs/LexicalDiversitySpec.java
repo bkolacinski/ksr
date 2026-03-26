@@ -1,13 +1,13 @@
-package org.bir.specs;
-
-import org.bir.FeatureSpec;
-import org.bir.FeatureType;
-import org.bir.ReutersArticle;
+package org.bir.extractor.specs;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import org.bir.extractor.FeatureSpec;
+import org.bir.extractor.FeatureType;
+import org.bir.extractor.ReutersArticle;
 
 public class LexicalDiversitySpec extends FeatureSpec<Double> {
 

@@ -1,4 +1,4 @@
-package org.bir;
+package org.bir.knn;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,17 +10,22 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.bir.specs.LongWordToOtherWordsRatioSpec;
-import org.bir.specs.ProperNounRatioSpec;
-import org.bir.specs.ProperNounSpec;
-import org.bir.specs.RarestRepeatedWordSpec;
-import org.bir.specs.AlnumToOtherCharsRatioSpec;
-import org.bir.specs.AverageWordLengthSpec;
-import org.bir.specs.CharCountSpec;
-import org.bir.specs.LexicalDiversitySpec;
-import org.bir.specs.UpperToAllCharsRatioSpec;
-import org.bir.specs.UpperToLowerRatioSpec;
-import org.bir.specs.WordCountSpec;
+import org.bir.extractor.specs.LongWordToOtherWordsRatioSpec;
+import org.bir.extractor.specs.ProperNounRatioSpec;
+import org.bir.extractor.specs.ProperNounSpec;
+import org.bir.extractor.specs.RarestRepeatedWordSpec;
+import org.bir.extractor.FeatureSpec;
+import org.bir.extractor.FeatureVector;
+import org.bir.extractor.ReutersArticle;
+import org.bir.extractor.ReutersParser;
+import org.bir.extractor.TextParser;
+import org.bir.extractor.specs.AlnumToOtherCharsRatioSpec;
+import org.bir.extractor.specs.AverageWordLengthSpec;
+import org.bir.extractor.specs.CharCountSpec;
+import org.bir.extractor.specs.LexicalDiversitySpec;
+import org.bir.extractor.specs.UpperToAllCharsRatioSpec;
+import org.bir.extractor.specs.UpperToLowerRatioSpec;
+import org.bir.extractor.specs.WordCountSpec;
 
 public class App {
     private static final double TRAIN_SPLIT_RATIO = 0.8;

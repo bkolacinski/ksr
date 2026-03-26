@@ -1,4 +1,4 @@
-package org.bir;
+package org.bir.extractor;
 
 public enum FeatureType {
     NUMERIC,

@@ -1,8 +1,8 @@
-package org.bir.specs;
+package org.bir.extractor.specs;
 
-import org.bir.FeatureSpec;
-import org.bir.FeatureType;
-import org.bir.ReutersArticle;
+import org.bir.extractor.FeatureSpec;
+import org.bir.extractor.FeatureType;
+import org.bir.extractor.ReutersArticle;
 
 public class UpperToLowerRatioSpec extends FeatureSpec<Double> {
 

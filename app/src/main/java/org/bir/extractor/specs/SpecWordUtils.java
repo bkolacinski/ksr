@@ -1,4 +1,4 @@
-package org.bir.specs;
+package org.bir.extractor.specs;
 
 import java.util.ArrayList;
 import java.util.HashMap;

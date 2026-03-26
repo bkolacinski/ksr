@@ -1,4 +1,4 @@
-package org.bir;
+package org.bir.knn;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -6,6 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.bir.extractor.FeatureSpec;
+import org.bir.extractor.FeatureType;
+import org.bir.extractor.FeatureVector;
 
 public final class KnnClassifier {
     private final int k;
