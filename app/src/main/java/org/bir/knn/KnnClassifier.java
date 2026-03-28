@@ -3,9 +3,11 @@ package org.bir.knn;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.bir.extractor.FeatureSpec;
 import org.bir.extractor.FeatureType;
@@ -14,11 +16,16 @@ import org.bir.extractor.FeatureVector;
 public final class KnnClassifier {
     private final int k;
     private final List<FeatureSpec> featureSpecs;
+    private final DistanceMetric distanceMetric;
     private final List<LabeledSample> trainingData = new ArrayList<>();
     private final Map<String, Double> minNumericValues = new HashMap<>();
     private final Map<String, Double> maxNumericValues = new HashMap<>();
 
     public KnnClassifier(int k, List<FeatureSpec> featureSpecs) {
+        this(k, featureSpecs, DistanceMetric.MANHATTAN);
+    }
+
+    public KnnClassifier(int k, List<FeatureSpec> featureSpecs, DistanceMetric distanceMetric) {
         if (k <= 0) {
             throw new IllegalArgumentException("k musi być większe od 0");
         }
@@ -29,6 +36,7 @@ public final class KnnClassifier {
         }
 
         this.k = k;
+        this.distanceMetric = Objects.requireNonNull(distanceMetric, "Metryka nie może być nullem");
     }
 
     public void train(FeatureVector vector, String category) {
@@ -101,18 +109,67 @@ public final class KnnClassifier {
 
         for (FeatureSpec spec : featureSpecs) {
             double weight = spec.getWeight();
+            double featureDistance;
+
             if (spec.getType() == FeatureType.NUMERIC) {
                 String featureName = spec.getName();
                 double leftNorm = normalizeNumericValue(featureName, left.getNumeric(featureName));
                 double rightNorm = normalizeNumericValue(featureName, right.getNumeric(featureName));
-                sum += weight * Math.abs(leftNorm - rightNorm);
+                featureDistance = Math.abs(leftNorm - rightNorm);
             } else {
-                double d = left.getText(spec.getName()).equals(right.getText(spec.getName())) ? 0.0 : 1.0;
-                sum += weight * d;
+                featureDistance = jaccardDistance2Gram(left.getText(spec.getName()), right.getText(spec.getName()));
+            }
+
+            double weightedDistance = weight * featureDistance;
+            if (distanceMetric == DistanceMetric.EUCLIDEAN) {
+                sum += weightedDistance * weightedDistance;
+            } else {
+                sum += weightedDistance;
             }
         }
 
+        if (distanceMetric == DistanceMetric.EUCLIDEAN) {
+            return Math.sqrt(sum);
+        }
+
         return sum;
+    }
+
+    private double jaccardDistance2Gram(String left, String right) {
+        Set<String> leftNgrams = build2Grams(left);
+        Set<String> rightNgrams = build2Grams(right);
+
+        if (leftNgrams.isEmpty() && rightNgrams.isEmpty()) {
+            return 0.0;
+        }
+
+        Set<String> union = new HashSet<>(leftNgrams);
+        union.addAll(rightNgrams);
+        if (union.isEmpty()) {
+            return 0.0;
+        }
+
+        Set<String> intersection = new HashSet<>(leftNgrams);
+        intersection.retainAll(rightNgrams);
+        double similarity = (double) intersection.size() / union.size();
+        return 1.0 - similarity;
+    }
+
+    private Set<String> build2Grams(String value) {
+        String safe = value == null ? "" : value.trim().toLowerCase();
+        if (safe.isEmpty()) {
+            return Set.of();
+        }
+
+        if (safe.length() == 1) {
+            return Set.of(safe);
+        }
+
+        Set<String> grams = new HashSet<>();
+        for (int i = 0; i < safe.length() - 1; i++) {
+            grams.add(safe.substring(i, i + 2));
+        }
+        return grams;
     }
 
     private double normalizeNumericValue(String featureName, double value) {

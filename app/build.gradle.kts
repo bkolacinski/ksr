@@ -47,3 +47,16 @@ tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
+
+tasks.register<JavaExec>("runKnnAutomation") {
+    group = "application"
+    description = "Uruchamia zautomatyzowane eksperymenty KNN"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = "org.bir.knn.KnnAutomatedTestRunner"
+
+    val rawArgs = project.findProperty("appArgs")?.toString()?.trim().orEmpty()
+    if (rawArgs.isNotBlank()) {
+        args(rawArgs.split("\\s+".toRegex()))
+    }
+}
+
