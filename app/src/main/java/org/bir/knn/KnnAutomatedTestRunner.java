@@ -319,6 +319,7 @@ public final class KnnAutomatedTestRunner {
         return switch (metric) {
             case MANHATTAN -> 0;
             case EUCLIDEAN -> 1;
+            case CHEBYSHEV -> 2;
         };
     }
 

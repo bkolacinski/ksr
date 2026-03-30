@@ -6,7 +6,7 @@ Parametry:
 - `k`
 - `features` (lista po przecinku)
 - `testPercent`
-- `metric` (`MANHATTAN` lub `EUCLIDEAN`)
+- `metric` (`MANHATTAN`, `EUCLIDEAN` lub `CHEBYSHEV`)
 - `seed`
 
 Przykład:
@@ -22,7 +22,7 @@ Klasa: `org.bir.knn.KnnAutomatedTestRunner`
 Możesz uruchomić przez Gradle task `:app:runKnnAutomation` (argumenty podawane przez `-PappArgs`).
 
 ```powershell
-.\gradlew.bat :app:runKnnAutomation -PappArgs="--scenario=all --threads=4 --metrics=MANHATTAN,EUCLIDEAN --k=5 --testPercent=20 --maxFeatureDrop=4 --out=knn-results.csv"
+.\gradlew.bat :app:runKnnAutomation -PappArgs="--scenario=all --threads=4 --metrics=MANHATTAN,EUCLIDEAN,CHEBYSHEV --k=5 --testPercent=20 --maxFeatureDrop=4 --out=knn-results.csv"
 ```
 
 Runner drukuje progress na bieżąco (`[kSweep]`, `[splitSweep]`, `[featureSweep]`) wraz z accuracy.
@@ -35,9 +35,9 @@ Scenariusze:
 Przykłady uruchomień pojedynczych scenariuszy:
 
 ```powershell
-.\gradlew.bat :app:runKnnAutomation -PappArgs="--scenario=ksweep --threads=2 --metrics=MANHATTAN,EUCLIDEAN --testPercent=20 --maxK=200 --out=ksweep.csv"
-.\gradlew.bat :app:runKnnAutomation -PappArgs="--scenario=splitsweep --threads=2 --k=5 --metrics=MANHATTAN,EUCLIDEAN --features=alnumToOtherCharsRatio,averageWordLength,charCount,lexicalDiversity,longWordToOtherWordsRatio,properNounMidSentenceRatio,properNounFirst,rarestRepeatedWord,upperToAllCharsRatio,upperToLowerRatio,wordCount --out=splitsweep.csv"
-.\gradlew.bat :app:runKnnAutomation -PappArgs="--scenario=featuresweep --threads=2 --k=5 --metrics=MANHATTAN,EUCLIDEAN --testPercent=20 --maxFeatureDrop=4 --features=alnumToOtherCharsRatio,averageWordLength,charCount,lexicalDiversity,longWordToOtherWordsRatio,properNounMidSentenceRatio,properNounFirst,rarestRepeatedWord,upperToAllCharsRatio,upperToLowerRatio,wordCount --out=featuresweep.csv"
+.\gradlew.bat :app:runKnnAutomation -PappArgs="--scenario=ksweep --threads=2 --metrics=MANHATTAN,EUCLIDEAN,CHEBYSHEV --testPercent=20 --maxK=200 --out=ksweep.csv"
+.\gradlew.bat :app:runKnnAutomation -PappArgs="--scenario=splitsweep --threads=2 --k=5 --metrics=MANHATTAN,EUCLIDEAN,CHEBYSHEV --features=alnumToOtherCharsRatio,averageWordLength,charCount,lexicalDiversity,longWordToOtherWordsRatio,properNounMidSentenceRatio,properNounFirst,rarestRepeatedWord,upperToAllCharsRatio,upperToLowerRatio,wordCount --out=splitsweep.csv"
+.\gradlew.bat :app:runKnnAutomation -PappArgs="--scenario=featuresweep --threads=2 --k=5 --metrics=MANHATTAN,EUCLIDEAN,CHEBYSHEV --testPercent=20 --maxFeatureDrop=4 --features=alnumToOtherCharsRatio,averageWordLength,charCount,lexicalDiversity,longWordToOtherWordsRatio,properNounMidSentenceRatio,properNounFirst,rarestRepeatedWord,upperToAllCharsRatio,upperToLowerRatio,wordCount --out=featuresweep.csv"
 ```
 
 CSV zawiera kolumny:

@@ -2,7 +2,8 @@ package org.bir.knn;
 
 public enum DistanceMetric {
     MANHATTAN,
-    EUCLIDEAN;
+    EUCLIDEAN,
+    CHEBYSHEV;
 
     public static DistanceMetric fromString(String rawValue) {
         if (rawValue == null || rawValue.isBlank()) {

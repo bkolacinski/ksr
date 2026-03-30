@@ -106,6 +106,7 @@ public final class KnnClassifier {
 
     private double calculateNormalizedDistance(FeatureVector left, FeatureVector right) {
         double sum = 0.0;
+        double maxComponent = 0.0;
 
         for (FeatureSpec spec : featureSpecs) {
             double weight = spec.getWeight();
@@ -123,6 +124,8 @@ public final class KnnClassifier {
             double weightedDistance = weight * featureDistance;
             if (distanceMetric == DistanceMetric.EUCLIDEAN) {
                 sum += weightedDistance * weightedDistance;
+            } else if (distanceMetric == DistanceMetric.CHEBYSHEV) {
+                maxComponent = Math.max(maxComponent, weightedDistance);
             } else {
                 sum += weightedDistance;
             }
@@ -130,6 +133,8 @@ public final class KnnClassifier {
 
         if (distanceMetric == DistanceMetric.EUCLIDEAN) {
             return Math.sqrt(sum);
+        } else if (distanceMetric == DistanceMetric.CHEBYSHEV) {
+            return maxComponent;
         }
 
         return sum;
