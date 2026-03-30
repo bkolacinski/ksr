@@ -139,7 +139,7 @@
 		\item \(predicted_i\) - całkowita liczba dokumentów, które algorytm zaklasyfikował do klasy \(i\).
 	\end{itemize}
 	
-	\subsection{Metryki cząstkowe per klasa}
+	\subsection{Miary cząstkowe per klasa}
 	Dla każdej klasy obliczane są trzy miary, które przyjmują wartości z zakresu $[0, 1]$, gdzie 1 oznacza wynik idealny:
 	\begin{enumerate}
 		\item \textbf{Precision $P_i$}: Określa, jakie jest prawdopodobieństwo, że dokument zaklasyfikowany do danego kraju faktycznie z niego pochodzi.
@@ -168,10 +168,10 @@
 		\end{equation}
 	\end{enumerate}
 	
-	\subsection{Metryki globalne}
+	\subsection{Miary globalne}
 	Do globalnej oceny modelu zastosowano:
 	\begin{enumerate}
-		\item \textbf{Accuracy $Acc$}: Stosunek wszystkich poprawnych klasyfikacji do liczby wszystkich dokumentów $M$.
+		\item \textbf{Accuracy}: Stosunek wszystkich poprawnych klasyfikacji do liczby wszystkich dokumentów \(M\).
 		\begin{equation}
 			Acc = \frac{\sum_{i=1}^{6} TP_i}{M}
 		\end{equation}
@@ -187,19 +187,20 @@
 		\centering
 		\begin{tabular}{|l|c|c|c|}
 			\hline
-			\textbf{Klasa / Metryka} & \textbf{Precision (\(P_i\))} & \textbf{Recall (\(R_i\))} & \textbf{F1-score (\(F1_i\))} \\ \hline
+			\textbf{Klasa (kraj)} & \textbf{Precision (\(P_i\))} & \textbf{Recall (\(R_i\))} & \textbf{F1-score (\(F1_i\))} \\ \hline
 			usa & 82,75\%  & 94,81\% & 88,37\% \\ \hline
 			canada & 53,06\% & 15,29\% & 23,74\% \\ \hline 
 			japan & 34,38\% & 22,00\% & 26,83\% \\ \hline \hline
 			
-			\textbf{Metryka globalna} & \multicolumn{2}{c|}{\textbf{Nazwa}} & \textbf{Wartość} \\ \hline
+			\textbf{Miara globalna} & \multicolumn{2}{c|}{\textbf{Nazwa}} & \textbf{Wartość} \\ \hline
 			Accuracy (Acc) & \multicolumn{2}{c|}{Ogólna dokładność modelu} & \textbf{78,91\%} \\ \hline
 			Macro-F1 & \multicolumn{2}{c|}{Średnia harmoniczna klas} & \textbf{34,55\%} \\ \hline
 		\end{tabular}
 		\caption{Zestawienie przykładowych miar jakości klasyfikacji dla $k=5$.}
 	\end{table}
 	
-	Algorytm osiągnął dokładność bliską \(79\%\), jednak łatwo zauważyć niskie wartości metryk dla krajów innych niż USA, wynika to z znacznej przewagi USA w danych. Metryk Macro-F1 znacznie lepiej odzwierciedla słabości modelu w rozpoznawaniu innych klas.
+	\noindent
+	Algorytm osiągnął dokładność bliską \(79\%\), jednak łatwo zauważyć niskie wartości miar dla krajów innych niż USA, wynika to z znacznej przewagi USA w danych. Macro-F1 znacznie lepiej odzwierciedla słabości modelu (jego niską stabilność) w rozpoznawaniu innych klas.
 	
 	\newpage
 	\section{Metryki i miary podobieństwa tekstów w klasyfikacji}
@@ -262,8 +263,8 @@
 	\begin{itemize}
 		\item \(\delta_1 = |0.6 - 0.4| = 0.2\)
 		\item \(\delta_2 = |0.7 - 0.8| = 0.1\)
-		\item \(G(c_3^1) = \{LO, ON, ND, DO, ON\} \rightarrow \{LO, ON, ND, DO\}\)
-		\item \(G(c_3^2) = \{LO, ON, ND, DO, ON, NE, ER\} \rightarrow \{LO, ON, ND, DO, NE, ER\}\)
+		\item \(G(c_3^1) = \{LO, ON, ND, DO, ON\}\) \(\rightarrow\) \(\{LO, ON, ND, DO\}\)
+		\item \(G(c_3^2) = \{LO, ON, ND, DO, ON, NE, ER\}\) \(\rightarrow\) \(\{LO, ON, ND, DO, NE, ER\}\)
 		\item \(J = \frac{|\{LO, ON, ND, DO\}|}{|\{LO, ON, ND, DO, NE, ER\}|} = \frac{2}{3} \approx 0.67\)
 		\item \(\delta_3 = 1 - 0.67 = 0.33\)
 	\end{itemize}
