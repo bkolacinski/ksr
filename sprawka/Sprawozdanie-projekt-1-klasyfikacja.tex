@@ -303,6 +303,7 @@ Dla każdej metryki rozpoczęto od wartości $k = 1$, a następnie zwiększano $
 \end{figure}
 
 \newpage
+\noindent
 Najlepszy wynik uzyskany w eksperymencie 1 wyniósł:
 \begin{itemize}
     \item $k = 13$
@@ -331,13 +332,14 @@ Dla każdej konfiguracji obliczono Accuracy i przeanalizowano stabilność wynik
 \end{figure}
 
 \newpage
+\noindent
 Najlepszy wynik w eksperymencie 2 uzyskano dla:
 \begin{itemize}
     \item $k = 13$
-    \item wielkość zbioru testowego = 20,00\%
+    \item wielkość zbioru testowego = 15\%
     \item metryka = euklidesowa
     \item liczba cech = 11
-    \item Accuracy = 0,794555
+    \item Accuracy = 0,797677
 \end{itemize}
 
 \subsection{Eksperyment 3: Wpływ cech na Accuracy}
@@ -350,40 +352,23 @@ W trzecim eksperymencie analizowano wpływ poszczególnych cech (feature'ów) na
 
 Model trenowano dla $k=13$, przy teście podzielonym na 15\% danych oraz wykorzystaniu metryki EUCLIDEAN. Najlepsze uzyskane Accuracy wyniosło $0,802033$. Poniższa tabela przedstawia zestawy cech, które osiągnęły tę najwyższą wartość Accuracy:
 
-\begin{table}[H]
-\centering
-\begin{tabular}{|c|}
-\hline
-\textbf{Zestaw cech} \\ \hline
-\begin{tabular}[c]{@{}l@{}}
-alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
-properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
-upperToAllCharsRatio, upperToLowerRatio, wordCount
-\end{tabular} \\ \hline
-\begin{tabular}[c]{@{}l@{}}
-alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
-properNounFirst, rarestRepeatedWord, upperToAllCharsRatio, \\
-upperToLowerRatio, wordCount
-\end{tabular} \\ \hline
-\begin{tabular}[c]{@{}l@{}}
-alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
-properNounMidSentenceRatio, rarestRepeatedWord, upperToAllCharsRatio, \\
-upperToLowerRatio, wordCount
-\end{tabular} \\ \hline
-\begin{tabular}[c]{@{}l@{}}
-alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
-properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
-upperToLowerRatio, wordCount
-\end{tabular} \\ \hline
-\begin{tabular}[c]{@{}l@{}}
-alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
-properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
-upperToAllCharsRatio, wordCount
-\end{tabular} \\ \hline
-\end{tabular}
-\caption{Najlepsze zestawy cech w eksperymencie 3 uzyskujące Accuracy = 0,802033}
-\label{tab:exp3_best_features}
-\end{table}
+\begin{enumerate}
+	\item alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+	properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
+	upperToAllCharsRatio, upperToLowerRatio, wordCount (9 cech)
+	\item alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+	properNounFirst, rarestRepeatedWord, upperToAllCharsRatio, \\
+	upperToLowerRatio, wordCount (8 cech)
+	\item alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+	properNounMidSentenceRatio, rarestRepeatedWord, upperToAllCharsRatio, \\
+	upperToLowerRatio, wordCount (8 cech)
+	\item alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+	properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
+	upperToLowerRatio, wordCount (8 cech)
+	\item alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+	properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
+	upperToAllCharsRatio, wordCount (8 cech)
+\end{enumerate}
 
 \begin{figure}[H]
     \centering
@@ -392,6 +377,50 @@ upperToAllCharsRatio, wordCount
     \label{fig:exp3_feature_impact}
 \end{figure}
 
+\noindent
+Najlepszy wynik został osiągnięty dla następujących parametrów:
+\begin{itemize}
+	\item $k = 13$
+	\item wielkość zbioru testowego = 15\%
+	\item metryka = euklidesowa
+	\item liczba cech = 8
+	\item zestaw cech: 
+	\begin{itemize}
+		\item alnumToOtherCharsRatio
+		\item charCount
+		\item longWordToOtherWordsRatio
+		\item properNounFirst
+		\item rarestRepeatedWord
+		\item upperToAllCharsRatio
+		\item upperToLowerRatio
+		\item wordCount
+	\end{itemize}
+\end{itemize}
+
+\newpage
+\begin{table}[H]
+	\centering
+	\caption{Wyniki klasyfikacji dla najlepszego modelu}
+	\label{tab:classification_report}
+	\begin{tabular}{lccc}
+		\hline
+		\textbf{Klasa} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-score} \\
+		\hline
+		france         & 0.2500 & 0.0244 & 0.0444 \\
+		japan          & 0.6250 & 0.1333 & 0.2198 \\
+		uk             & 0.5000 & 0.2057 & 0.2915 \\
+		canada         & 0.4219 & 0.2126 & 0.2827 \\
+		usa            & 0.8271 & 0.9730 & 0.8941 \\
+		west-germany   & 0.5000 & 0.0400 & 0.0741 \\
+		\hline
+		\multicolumn{4}{l}{Accuracy $\approx$ 0.8020} \\
+		\multicolumn{4}{l}{Macro F1-score $\approx$ 0.3011} \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\noindent
+Model osiąga wysoką dokładność ogólną, jednak wyniki dla poszczególnych klas są silnie zróżnicowane. Bardzo dobra skuteczność dla klasy USA znacząco zawyża wartość Accuracy, podczas gdy dla pozostałych klas model radzi sobie wyraźnie gorzej. Niska wartość macro F1-score wskazuje na brak równowagi w jakości klasyfikacji między klasami. Otrzymane wyniki sugerują, że model ma ograniczoną zdolność do poprawnego rozróżniania mniej reprezentowanych kategorii.
 
 
 \newpage
