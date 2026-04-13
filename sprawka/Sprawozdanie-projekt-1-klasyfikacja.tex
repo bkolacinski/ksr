@@ -5,6 +5,8 @@
 \usepackage{amsmath}
 \usepackage{url}
 \usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
 %{Informatyka stosowana 2020, I st., semestr VI}
 
 
@@ -278,13 +280,121 @@
 	\end{itemize}
 	
 	\newpage
-	\section{Wyniki klasyfikacji dla różnych parametrów wejściowych}
-	Wstępne wyniki miary Accuracy dla próbnych klasyfikacji na ograniczonym zbiorze tekstów (podać parametry i kryteria
-	wyboru wg punktów 3.-8. z opisu Projektu 1.). 
-	\noindent {\bf Sekcja uzupełniona jako efekt zadania Tydzień 05 wg Harmonogramu Zajęć
-		na WIKAMP KSR.}
-	
-	
+\section{Wyniki klasyfikacji dla różnych parametrów wejściowych}
+
+W niniejszej sekcji przedstawiono wstępne wyniki miary \textbf{Accuracy} dla próbnych klasyfikacji na ograniczonym zbiorze tekstów. Eksperymenty przeprowadzono zgodnie z założeniami projektu (punkty 3--8), obejmującymi dobór parametrów modelu, metryk odległości oraz podział danych.
+
+\subsection{Eksperyment 1: Wpływ parametru $k$ oraz metryki odległości na Accuracy}
+
+W pierwszym eksperymencie analizowano wpływ liczby sąsiadów $k$ na jakość klasyfikacji dla trzech metryk odległości:
+\begin{itemize}
+    \item metryka euklidesowa,
+    \item metryka Manhattan,
+    \item metryka Czebyszewa.
+\end{itemize}
+
+Dla każdej metryki rozpoczęto od wartości $k = 1$, a następnie zwiększano $k$ iteracyjnie. Proces zwiększania parametru $k$ był kontynuowany do momentu, w którym przez trzy kolejne wartości $k$ nie zaobserwowano poprawy wartości Accuracy. Następnie porównano uzyskane wyniki dla poszczególnych metryk.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{acc_vs_k.png}
+    \caption{Accuracy w funkcji parametru $k$ dla różnych metryk odległości}
+    \label{fig:exp1}
+\end{figure}
+
+\newpage
+Najlepszy wynik uzyskany w eksperymencie 1 wyniósł:
+\begin{itemize}
+    \item $k = 13$
+    \item wielkość zbioru testowego = 20,00\%
+    \item metryka = euklidesowa
+    \item liczba cech = 11
+    \item Accuracy = 0,794555
+\end{itemize}
+
+\subsection{Eksperyment 2: Wpływ wielkości zbioru testowego na Accuracy (metryka euklidesowa)}
+
+W drugim eksperymencie badano wpływ procentowego podziału danych na zbiór treningowy i testowy na skuteczność klasyfikacji. Wykorzystano metrykę euklidesową oraz stałą wartość parametru $k = 5$.
+
+Testowano wszystkie proporcje zbioru testowego od 10\% do 90\% ze skokiem co 5\%, tj.:
+\begin{itemize}
+    \item 10\%, 15\%, 20\%, \dots, 85\%, 90\%.
+\end{itemize}
+
+Dla każdej konfiguracji obliczono Accuracy i przeanalizowano stabilność wyników.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{acc_vs_test_size.png}
+    \caption{Wpływ wielkości zbioru testowego na (Accuracy) (metryka euklidesowa)}
+    \label{fig:exp2}
+\end{figure}
+
+\newpage
+Najlepszy wynik w eksperymencie 2 uzyskano dla:
+\begin{itemize}
+    \item $k = 13$
+    \item wielkość zbioru testowego = 20,00\%
+    \item metryka = euklidesowa
+    \item liczba cech = 11
+    \item Accuracy = 0,794555
+\end{itemize}
+
+\subsection{Eksperyment 3: Wpływ cech na Accuracy}
+
+W trzecim eksperymencie analizowano wpływ poszczególnych cech (feature'ów) na skuteczność klasyfikacji. Badanie polegało na:
+\begin{itemize}
+    \item trenowaniu modelu z wykorzystaniem wszystkich cech,
+    \item usuwaniu pojedynczych cech i obserwacji zmiany Accuracy.
+\end{itemize}
+
+Model trenowano dla $k=13$, przy teście podzielonym na 15\% danych oraz wykorzystaniu metryki EUCLIDEAN. Najlepsze uzyskane Accuracy wyniosło $0,802033$. Poniższa tabela przedstawia zestawy cech, które osiągnęły tę najwyższą wartość Accuracy:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|}
+\hline
+\textbf{Zestaw cech} \\ \hline
+\begin{tabular}[c]{@{}l@{}}
+alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
+upperToAllCharsRatio, upperToLowerRatio, wordCount
+\end{tabular} \\ \hline
+\begin{tabular}[c]{@{}l@{}}
+alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+properNounFirst, rarestRepeatedWord, upperToAllCharsRatio, \\
+upperToLowerRatio, wordCount
+\end{tabular} \\ \hline
+\begin{tabular}[c]{@{}l@{}}
+alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+properNounMidSentenceRatio, rarestRepeatedWord, upperToAllCharsRatio, \\
+upperToLowerRatio, wordCount
+\end{tabular} \\ \hline
+\begin{tabular}[c]{@{}l@{}}
+alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
+upperToLowerRatio, wordCount
+\end{tabular} \\ \hline
+\begin{tabular}[c]{@{}l@{}}
+alnumToOtherCharsRatio, charCount, longWordToOtherWordsRatio, \\
+properNounMidSentenceRatio, properNounFirst, rarestRepeatedWord, \\
+upperToAllCharsRatio, wordCount
+\end{tabular} \\ \hline
+\end{tabular}
+\caption{Najlepsze zestawy cech w eksperymencie 3 uzyskujące Accuracy = 0,802033}
+\label{tab:exp3_best_features}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{avg_acc_per_feature.png}
+    \caption{Średnie Accuracy uzyskane przy usuwaniu pojedynczych cech. Wykres pokazuje, które cechy mają największy wpływ na jakość klasyfikacji.}
+    \label{fig:exp3_feature_impact}
+\end{figure}
+
+
+
+\newpage
 	\section{Dyskusja, wnioski, sprawozdanie końcowe}
 	We wnioskach z badania skomentować wyłącznie wpływ parametrów i cech na jakość procesu klasyfikacji. Innymi słowy – wnioski to to, co wynika z przeprowadzonych obliczeń, a nie to co wiadomo z literatury. 
 	Znaczenie kolejnych eksperymentów wg punktów 2.-8. opisu projektu 1.  Każdorazowo
