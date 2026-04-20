@@ -374,7 +374,7 @@ Model trenowano dla $k=13$, przy teście podzielonym na 15\% danych oraz wykorzy
     \centering
     \includegraphics[width=0.9\textwidth]{avg_acc_per_feature.png}
     \caption{Średnie Accuracy uzyskane przy usuwaniu pojedynczych cech. Wykres pokazuje, które cechy mają największy wpływ na jakość klasyfikacji.}
-    \label{fig:exp3_feature_impact}
+    \label{fig:exp3}
 \end{figure}
 
 \noindent
@@ -424,35 +424,53 @@ Model osiąga wysoką dokładność ogólną, jednak wyniki dla poszczególnych 
 
 
 \newpage
+		
 	\section{Dyskusja, wnioski, sprawozdanie końcowe}
-	We wnioskach z badania skomentować wyłącznie wpływ parametrów i cech na jakość procesu klasyfikacji. Innymi słowy – wnioski to to, co wynika z przeprowadzonych obliczeń, a nie to co wiadomo z literatury. 
-	Znaczenie kolejnych eksperymentów wg punktów 2.-8. opisu projektu 1.  Każdorazowo
-	podane parametry, dla których przeprowadzana eksperyment. 
-	Wykresy (np. słupkowe) i tabele wyników
-	obowiązkowe, dokładnie opisane w ,,captions'' (tytułach), konieczny opis osi i
-	jednostek wykresów oraz kolumn i wierszy tabel.\\ 
+
+	\subsection{Przygotowanie zbioru danych i selekcja klas}
+
+	Ograniczenie liczby etykiet w analizowanej kategorii prowadzi do wyraźnej poprawy działania algorytmu klasyfikacji. Mniejsza liczba klas zmniejsza złożoność problemu, ogranicza możliwość popełniania błędów oraz pozwala modelowi lepiej rozróżniać dostępne kategorie. Dzięki temu uzyskiwane wyniki są bardziej trafne i stabilne.
+
+	\subsection{Metryki odległości oraz miara podobieństwa tekstów}
+
+	W procesie klasyfikacji warto rozważyć metryki takie jak euklidesowa i Manhattan oraz odpowiednio dobraną miarę podobieństwa tekstów. Metryka Czebyszewa nie sprawdza się w tym zadaniu i nie powinna być stosowana, ponieważ nie oddaje dobrze różnic między tekstami, co pogarsza wyniki klasyfikacji.
 	
-	{**Ewentualne wyniki realizacji punktu 9. opisu Projektu 1., czyli ,,na ocenę 5.0'' i ich porównanie do wyników z
-		części obowiązkowej**.Dokładne interpretacje uzyskanych wyników w zależności od parametrów klasyfikacji
-		opisanych w punktach 3.-8 opisu Projektu 1. 
-		Omówić i wyjaśnić napotkane problemy (jeśli były). Każdy wniosek/problem powinien mieć poparcie
-		w przeprowadzonych eksperymentach (odwołania do konkretnych wyników: wykresów,
-		tabel). \\
-		\underline{Dla końcowej oceny jest to najważniejsza sekcja} sprawozdania, gdyż prezentuje poziom
-		zrozumienia rozwiązywanego problemu.\\
+	\subsection{Miary jakości klasyfikacji}
+
+	Accuracy jest użyteczne jako ogólny wskaźnik poprawności, jednak nie powinno być jedynym kryterium oceny. W przypadku niezrównoważonych danych (np. gdy jedna klasa dominuje) może ono dawać myląco dobre wyniki. Dlatego konieczne jest uwzględnienie miary F1, która lepiej odzwierciedla rzeczywistą jakość klasyfikacji, łącząc Precision i Recall.
+
+	W naszym przypadku optymalizowaliśmy parametry sprawdzając tylko wartość Accuracy, co w przypadku gdy dominuje jedna klasa spowodowało, że inne, mniej liczne klasy osiągały niższe wyniki F1. 
 		
-		** Możliwości kontynuacji prac w obszarze systemów rozpoznawania, zwłaszcza w kontekście pracy inżynierskiej,
-		magisterskiej, naukowej, itp. **\\
-		
-		\noindent {\bf Sekcja uzupełniona jako efekt zadań Tydzień 05 i Tydzień 06 wg Harmonogramu Zajęć
-			na WIKAMP KSR.}
-		
-		
-		\section{Braki w realizacji projektu 1.}
-		Wymienić wg opisu Projektu 1. wszystkie niezrealizowane obowiązkowe elementy projektu, ewentualnie
-		podać merytoryczne (ale nie czasowe) przyczyny tych braków. 
-		
-		
+	\subsection{Wpływ parametru $k$ na skuteczność klasyfikacji}
+
+	Parametr k był badany do czasu aż nie spadnie trzykrotnie pod rząd dla danej metryki.
+	Wyniki eksperymentu widoczne na wykresie \ref{fig:exp1}.
+
+	Najlepsze wyniki uzyskano dla wartości parametru k w zakresie 10-13. W tym przedziale accuracy wynosiło około 79,5\% dla metryk euklidesowej i Manhattan oraz około 77,5\% dla metryki Czebyszewa, która osiągała wyraźnie słabsze rezultaty.
+
+	\subsection{Wpływ proporcji podziału zbioru na jakość klasyfikacji}
+
+	Procentowy udział zbioru testowego analizowano w zakresie od 10\% do 90\%, z krokiem równym 5\%.
+	Wyniki eksperymentu widoczne na wykresie \ref{fig:exp2}.
+
+	Najlepsze wyniki uzyskano przy 15\% danych przeznaczonych na zbiór testowy. W przypadku bardzo małego zbioru testowego wyniki są stosunkowo dobre, jednak nie w pełni miarodajne. Natomiast wraz ze wzrostem udziału zbioru testowego obserwuje się wyraźny spadek accuracy, przy dużych proporcjach podziału wyniki stają się wyraźnie gorsze i mało satysfakcjonujące.
+
+	\subsection{Wpływ wyboru metryki i miary podobieństwa na wyniki klasyfikacji}
+
+	Parametr k był badany do czasu aż nie spadnie trzykrotnie pod rząd dla danej metryki.
+	Wyniki eksperymentu widoczne na wykresie \ref{fig:exp1}.
+
+	Najlepsze wyniki klasyfikacji uzyskano dla metryki euklidesowej, która osiągała najwyższe wartości Accuracy. W porównaniu do niej metryka Manhattan dawała zbliżone, lecz nieco słabsze rezultaty, natomiast metryka Czebyszewa wypadała najgorzej i nie powinna być preferowana w tym zadaniu.
+
+	\subsection{Analiza wpływu cech na wyniki klasyfikacji}
+
+	Analizowano wszystkie możliwe kombinacje cech o liczności od 8 do 11, przy czym początkowy zbiór obejmował 11 cech.
+	Wyniki eksperymentu widoczne na wykresie \ref{fig:exp3}.
+
+	Na podstawie analizy czterech różnych podzbiorów cech można zauważyć, że największy wpływ na wyniki klasyfikacji (w szczególności na accuracy) ma cecha rarestRepeatedWord. Osiąga ona najlepsze rezultaty spośród rozważanych wariantów, jednak przewaga ta jest bardzo niewielka - wynosi jedynie około 0,2\% w stosunku do pozostałych cech.
+	Pozostałe cechy wypadają praktycznie na tym samym poziomie, co sugeruje, że ich wpływ na skuteczność klasyfikacji jest zbliżony i żadna z nich nie wyróżnia się znacząco ani na plus, ani na minus.
+
+
 		\begin{thebibliography}{0}
 			\bibitem{tadeusiewicz90} R. Tadeusiewicz: Rozpoznawanie obrazów, PWN, Warszawa, 1991.  
 			\bibitem{niewiadomski08} A. Niewiadomski, Methods for the Linguistic Summarization of Data: Applications of Fuzzy Sets and Their Extensions, Akademicka Oficyna Wydawnicza EXIT, Warszawa, 2008.
